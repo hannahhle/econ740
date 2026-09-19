@@ -1,4 +1,4 @@
-National Park,State,CoStew, Year,Collab, Notes
+National Park,State,CoStew, Year,Collab,notes
 Acadia National Park,Maine,1,2015,1,
 Arches National Park,Utah,0,,1,
 Badlands National Park,South Dakota,1,1976,1,
@@ -41,24 +41,24 @@ Lake Clark National Park,Alaska,0,,1,anilca
 Lassen Volcanic National Park,California,0,,1,
 Mammoth Cave National Park,Kentucky,0,,1,
 Mesa Verde National Park,Colorado,0,,1,in the works
-Mount Rainier National Park,Washington,0,,0,
-National Park of American Samoa,American Samoa,0,,0,
-New River Gorge National Park and Preserve,West Virginia,0,,0,
-North Cascades National Park,Washington,0,,0,
-Olympic National Park,Washington,0,,0,
-Petrified Forest National Park,Arizona,0,,0,
-Pinnacles National Park,California,0,,0,
+Mount Rainier National Park,Washington,1,1999,1,?
+National Park of American Samoa,American Samoa,1,1993,1,
+New River Gorge National Park and Preserve,West Virginia,0,,1,nagpra
+North Cascades National Park,Washington,0,,1,treaty of point elliot?
+Olympic National Park,Washington,1,,1,since founding
+Petrified Forest National Park,Arizona,0,,1,
+Pinnacles National Park,California,1,2013,1,
 Redwood National Park,California,1,2024,0,
-Rocky Mountain National Park,Colorado,0,,0,
-Saguaro National Park,Arizona,0,,0,
-Sequoia National Park,California,0,,0,
-Shenandoah National Park,Virginia,0,,0,
+Rocky Mountain National Park,Colorado,1,2017,1,
+Saguaro National Park,Arizona,1,2018,1,plants
+Sequoia National Park,California,0,2017,1,burning?
+Shenandoah National Park,Virginia,0,,1,treaty of albany?
 Theodore Roosevelt National Park,North Dakota,0,,0,
 Virgin Islands National Park,Virgin Islands,0,,0,
-Voyageurs National Park,Minnesota,0,,0,
-White Sands National Park,New Mexico,0,,0,
-Wind Cave National Park,South Dakota,0,,0,
-Wrangell-St. Elias National Park,Alaska,0,,0,
-Yellowstone National Park,Idaho Montana and Wyoming,0,,0,
-Yosemite National Park,California,0,,0,
-Zion National Park,Utah,0,,0,
+Voyageurs National Park,Minnesota,0,,0,in the works
+White Sands National Park,New Mexico,0,2019,1,
+Wind Cave National Park,South Dakota,0,,1,nagpra
+Wrangell-St. Elias National Park,Alaska,0,,1,anilca
+Yellowstone National Park,Idaho Montana and Wyoming,0,,1,
+Yosemite National Park,California,0,,1,plants in the works
+Zion National Park,Utah,1,1998,1,plants
