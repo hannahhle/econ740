@@ -1,0 +1,19 @@
+---
+title: "clean"
+output: pdf_document
+date: "2026-09-19"
+---
+
+```{r, echo=FALSE}
+rm(list=ls())
+library(pacman)
+p_load(tidyverse, dplyr)
+#getwd()
+```
+
+```{r}
+parks <- read_csv('../data/parks_name.csv', col_select = 1:5)
+parks
+
+mean(parks$CoStew)
+```
