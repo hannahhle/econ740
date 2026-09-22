@@ -8,12 +8,24 @@ date: "2026-09-19"
 rm(list=ls())
 library(pacman)
 p_load(tidyverse, dplyr)
-#getwd()
+getwd()
 ```
 
 ```{r}
+## parks stewardship data
+
 parks <- read_csv('../data/parks_name.csv', col_select = 1:5)
 parks
 
 mean(parks$CoStew)
+```
+
+```{r}
+ACAD_visit <- read_csv('../data/visitation/ACAD.csv')
+
+
+ggplot(ACAD_visit, aes(x = Year, y = AUG)) +
+  geom_line()
+
+
 ```
