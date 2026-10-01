@@ -22,32 +22,48 @@ mean(parks$CoStew)
 
 ```{r}
 ACAD_vis <- read_csv('../data/visitation/ACAD.csv')
-names(ACAD_vis)[14] <- "Year_Tot"
+names(ACAD_vis)[14] <- "Year_vis"
 ACAD_vis$Park = "ACAD"
 
 BIBE_vis <- read_csv('../data/visitation/BIBE.csv')
-names(BIBE_vis)[14] <- "Year_Tot"
+names(BIBE_vis)[14] <- "Year_vis"
 BIBE_vis$Park = "BIBE"
 
 JOTR_vis <- read_csv('../data/visitation/JOTR.csv')
-names(JOTR_vis)[14] <- "Year_Tot"
+names(JOTR_vis)[14] <- "Year_vis"
 JOTR_vis$Park = "JOTR"
 
 
 full <- rbind(ACAD_vis, BIBE_vis, JOTR_vis)
-ggplot(ACAD_vis, aes(x = Year, y = Year_Tot)) +
+ggplot(ACAD_vis, aes(x = Year, y = Year_vis)) +
   geom_line() +
   labs(
     title = "ACAD yearly"
   )
 
-ggplot(BIBE_vis, aes(x = Year, y = Year_Tot)) +
+ggplot(BIBE_vis, aes(x = Year, y = Year_vis)) +
   geom_line() +
   labs(
     title = "BIBE yearly"
   )
 
-ggplot(full, aes(x=Year, y=Year_Tot, color = Park)) +
+ggplot(JOTR_vis, aes(x = Year, y = Year_vis)) +
+  geom_line() +
+  labs(
+    title = "JOTR yearly"
+  )
+ggplot(full, aes(x=Year, y=Year_vis, color = Park)) +
   geom_line()
-  
+
+full$log_tot <- log(full$Year_vis)  
+
+```
+
+```{r}
+spend <- read_csv("../data/parks_spending.csv")
+
+spend
+total <- right_join(full, spend, by = c("Year", "Park"))
+
+total
 ```
