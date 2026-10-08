@@ -6,6 +6,8 @@ output: pdf_document
 ---
 
 ```{r}
+## UPDATE JAVA!!!!!!!
+
 library(RSelenium)
 library(rvest)
 library(xml2)
@@ -24,10 +26,40 @@ url <- paste0(
 driver <- rsDriver(
   browser = "chrome",
   chromever = "latest",
-  port = 4567L
+  geckover = NULL,
+  phantomver = NULL,
+  iedrver = NULL,
+  port = 4444L,
+  verbose = TRUE
 )
 
-rem_driver
+remDr <- driver$client
 remDr$open()
 remDr$navigate(url)
+
+```
+
+```{r}
+iframe <- remDr$findElement(
+  using = "css selector",
+  value = "iframe"
+)
+
+remDr$switchToFrame(iframe)
+
+html <- remDr$getPageSource()[[1]]
+page <- read_html(html)
+
+tables <- page |>
+  html_elements("table") |>
+  html_table(fill = TRUE)
+
+tables
+```
+
+```{r}
+Sys.which("java")
+
+system("java -version")
+
 ```
