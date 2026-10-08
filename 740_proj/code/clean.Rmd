@@ -24,6 +24,7 @@ mean(parks$CoStew)
 ACAD_vis <- read_csv('../data/visitation/ACAD.csv')
 names(ACAD_vis)[14] <- "Year_vis"
 ACAD_vis$Park = "ACAD"
+ACAD_vis
 
 BIBE_vis <- read_csv('../data/visitation/BIBE.csv')
 names(BIBE_vis)[14] <- "Year_vis"
@@ -61,9 +62,10 @@ full$log_tot <- log(full$Year_vis)
 
 ```{r}
 spend <- read_csv("../data/parks_spending.csv")
-
 spend
 total <- right_join(full, spend, by = c("Year", "Park"))
 
 total
 ```
+
+

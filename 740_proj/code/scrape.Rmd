@@ -1,0 +1,33 @@
+---
+title: "econ740_scrape"
+author: "Hannah Le"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r}
+library(RSelenium)
+library(rvest)
+library(xml2)
+library(dplyr)
+
+park_code <- "ARCH"
+
+url <- paste0(
+  "https://irma.nps.gov/Stats/SSRSReports/",
+  "Park%20Specific%20Reports/Recreation%20Visitors%20By%20Month%20",
+  "(1979%20-%20Last%20Calendar%20Year)?Park=",
+  park_code
+)
+
+# selenium
+driver <- rsDriver(
+  browser = "chrome",
+  chromever = "latest",
+  port = 4567L
+)
+
+rem_driver
+remDr$open()
+remDr$navigate(url)
+```
