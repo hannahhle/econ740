@@ -7,7 +7,7 @@ date: "2026-09-19"
 ```{r, echo=FALSE}
 rm(list=ls())
 library(pacman)
-p_load(tidyverse, dplyr)
+p_load(tidyverse, dplyr, chromote)
 getwd()
 ```
 
@@ -17,8 +17,26 @@ getwd()
 parks <- read_csv('../data/parks_name.csv', col_select = 1:5)
 parks
 
-mean(parks$CoStew)
+spend <- read_csv("../data/parks_spending.csv")
+spend
+
 ```
+
+```{r}
+source("scrape.R")
+
+chrome <- ChromoteSession$new()
+
+park_code <- unique(na.omit(spend$Park))
+
+results <- lapply(
+  park_code,
+  get_visitation,
+  chrome = chrome
+)
+
+```
+
 
 ```{r}
 ACAD_vis <- read_csv('../data/visitation/ACAD.csv')
@@ -34,6 +52,11 @@ JOTR_vis <- read_csv('../data/visitation/JOTR.csv')
 names(JOTR_vis)[14] <- "Year_vis"
 JOTR_vis$Park = "JOTR"
 
+
+
+```
+
+```{r}
 
 full <- rbind(ACAD_vis, BIBE_vis, JOTR_vis)
 ggplot(ACAD_vis, aes(x = Year, y = Year_vis)) +
