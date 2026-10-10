@@ -4,14 +4,23 @@ author: "Hannah Le"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
-
 ```{r}
-## UPDATE JAVA!!!!!!!
+library(pacman)
+p_load(chromote, rvest, dplyr)
 
-library(RSelenium)
-library(rvest)
-library(xml2)
-library(dplyr)
+
+library_path <- .libPaths()[1]
+
+lock_files <- list.files(
+  library_path,
+  pattern = "^00LOCK",
+  full.names = TRUE
+)
+
+unlink(lock_files, recursive = TRUE, force = TRUE)
+```
+
+```{r, echo=FALSE}
 
 park_code <- "ARCH"
 
@@ -22,44 +31,169 @@ url <- paste0(
   park_code
 )
 
-# selenium
-driver <- rsDriver(
-  browser = "chrome",
-  chromever = "latest",
-  geckover = NULL,
-  phantomver = NULL,
-  iedrver = NULL,
-  port = 4444L,
-  verbose = TRUE
-)
+#open chrome
+chrome <- ChromoteSession$new()
 
-remDr <- driver$client
-remDr$open()
-remDr$navigate(url)
+#load url
+chrome$go_to(url)
+Sys.sleep(15) #pray
+
+location <- chrome$Runtime$evaluate(
+  "window.location.href",
+  returnByValue = TRUE
+)$result$value
+
+title <- chrome$Runtime$evaluate(
+  "document.title",
+  returnByValue = TRUE
+)$result$value
+```
+
+```{r, echo=FALSE}
+iframe_urls <- chrome$Runtime$evaluate(
+  "Array.from(document.querySelectorAll('iframe')).map(x => x.src)",
+  returnByValue = TRUE
+)$result$value
+
+iframe_urls
+
+iframe_url <- iframe_urls[[1]]
+
+chrome$go_to(iframe_url)
+Sys.sleep(15)
 
 ```
 
 ```{r}
-iframe <- remDr$findElement(
-  using = "css selector",
-  value = "iframe"
+body_text <- chrome$Runtime$evaluate(
+  "document.documentElement.innerText || ''",
+  returnByValue = TRUE
+)$result$value
+
+cat(substr(body_text, max(1, nchar(body_text) - 122), nchar(body_text)))
+
+```
+
+```{r, echo=FALSE}
+controls <- chrome$Runtime$evaluate(
+  "Array.from(document.querySelectorAll('select, input, button')).map(x => ({
+    tag: x.tagName,
+    id: x.id,
+    name: x.name,
+    value: x.value,
+    text: x.innerText
+  }))",
+  returnByValue = TRUE
+)$result$value
+
+```
+
+```{r, echo=FALSE}
+chrome$Runtime$evaluate(
+  "(() => {
+    const select = Array.from(document.querySelectorAll('select'))
+      .find(s => Array.from(s.options)
+      .some(o => o.text.includes('Arches')));
+
+    const option = Array.from(select.options)
+      .find(o => o.text.includes('Arches'));
+
+    select.value = option.value;
+    select.dispatchEvent(new Event('change', {bubbles: true}));
+
+    const button = Array.from(
+      document.querySelectorAll('input[type=\"submit\"], button')
+    ).find(x => /view report/i.test(x.value || x.innerText));
+
+    if (button) button.click();
+
+    return {
+      selected: option.text,
+      button_found: !!button
+    };
+  })()",
+  returnByValue = TRUE
+)$result$value
+
+Sys.sleep(15)
+
+
+body_text <- chrome$Runtime$evaluate(
+  "document.documentElement.innerText || ''",
+  returnByValue = TRUE
+)$result$value
+
+cat(substr(body_text, 1, 8344))
+
+rest_of_data <- substr(
+  body_text,
+  8345,
+  nchar(body_text) - 122
 )
 
-remDr$switchToFrame(iframe)
+cat(rest_of_data)
 
-html <- remDr$getPageSource()[[1]]
-page <- read_html(html)
+body_lines <- strsplit(body_text, "\n", fixed = TRUE)[[1]]
 
-tables <- page |>
-  html_elements("table") |>
-  html_table(fill = TRUE)
+rest_lines <- body_lines[
+  cumsum(nchar(body_lines) + 1) > 8344
+]
 
-tables
+rest_lines
+
 ```
 
 ```{r}
-Sys.which("java")
+tokens <- unlist(strsplit(rest_of_data, "\\s+"))
+tokens <- trimws(tokens)
+tokens <- tokens[nzchar(tokens)]
 
-system("java -version")
+tokens <- tokens[
+  grepl("^[0-9,]+$", tokens) |
+  grepl("^(19|20)[0-9]{2}$", tokens)
+]
 
+year_positions <- which(
+  grepl("^(19|20)[0-9]{2}$", tokens)
+)
+
+months <- toupper(month.abb)
+
+annual_rows <- lapply(seq_along(year_positions), function(i) {
+  
+  start <- year_positions[i]
+  end <- if (i < length(year_positions)) {
+    year_positions[i + 1] - 1
+  } else {
+    length(tokens)
+  }
+  
+  block <- tokens[start:end]
+  
+  year <- block[1]
+  total <- block[length(block)]
+  monthly_values <- block[2:(length(block) - 1)]
+  
+  monthly <- rep(NA_character_, 12)
+  monthly[seq_along(monthly_values)] <- monthly_values
+  
+  row <- c(
+    Year = year,
+    setNames(monthly, months),
+    Textbox5 = total
+  )
+  
+  as.data.frame(as.list(row), stringsAsFactors = FALSE)
+})
+
+visitation <- bind_rows(annual_rows)
+
+names(visitation)[ncol(visitation)] <- "Year_vis"
+
+write.csv(
+  visitation,
+  "../data/visitation/ARCH.csv",
+  row.names = FALSE,
+  na = ""
+)
 ```
