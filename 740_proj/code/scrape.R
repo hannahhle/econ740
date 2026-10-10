@@ -88,7 +88,6 @@ get_visitation <- function(park_code, chrome) {
     returnByValue = TRUE
   )$result$value
   
-  # Find the report data automatically
   body_lines <- strsplit(body_text, "\n", fixed = TRUE)[[1]]
   body_lines <- trimws(body_lines)
   body_lines <- body_lines[nzchar(body_lines)]
