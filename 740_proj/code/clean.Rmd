@@ -8,87 +8,105 @@ date: "2026-09-19"
 rm(list=ls())
 library(pacman)
 p_load(tidyverse, dplyr, chromote)
-getwd()
 ```
 
 ```{r}
-## parks stewardship data
-
+# parks stewardship data
 parks <- read_csv('../data/parks_name.csv', col_select = 1:5)
-parks
-
+# parks spending data
 spend <- read_csv("../data/parks_spending.csv")
-spend
-
 ```
 
 ```{r}
-source("scrape.R")
+# SCRAPES IRMA FOR VISITATION DATA OVER EACH PARK. 
+# do not need to run every time
+# last updated october 10, 2026
 
-chrome <- ChromoteSession$new()
+source("scrape.R")
 
 park_code <- unique(na.omit(spend$Park))
 
+chrome <- ChromoteSession$new()
+
 results <- lapply(
   park_code,
-  get_visitation,
-  chrome = chrome
+  function(code) {
+    
+    file_path <- file.path(
+      "../data/visitation",
+      paste0(code, ".csv")
+    )
+    
+    if (file.exists(file_path)) {
+      message("skipping ", code, ": already exists")
+      
+      return(read.csv(
+        file_path,
+        stringsAsFactors = FALSE,
+        check.names = FALSE
+      ))
+    }
+    
+    message("scraping ", code, "...")
+    
+    get_visitation(
+      park_code = code,
+      chrome = chrome
+    )
+  }
 )
+```
+```{r}
+month_cols <- c(toupper(month.abb), "Year_vis")
 
+park_vis <- lapply(park_code, function(park) {
+  
+  file_path <- file.path(
+    "../data/visitation",
+    paste0(park, ".csv")
+  )
+  
+  data <- read.csv(
+    file_path,
+    stringsAsFactors = FALSE,
+    check.names = FALSE,
+    colClasses = "character"
+  )
+  
+  data[month_cols] <- lapply(
+    data[month_cols],
+    function(x) as.numeric(gsub(",", "", x))
+  )
+  
+  data$Year <- as.integer(data$Year)
+  data$Park <- park
+  
+  data
+})
+
+full <- dplyr::bind_rows(park_vis)
+write.csv(full, "../data/full_vis.csv", row.names = FALSE)
+
+full
 ```
 
-
 ```{r}
-ACAD_vis <- read_csv('../data/visitation/ACAD.csv')
-names(ACAD_vis)[14] <- "Year_vis"
-ACAD_vis$Park = "ACAD"
-ACAD_vis
-
-BIBE_vis <- read_csv('../data/visitation/BIBE.csv')
-names(BIBE_vis)[14] <- "Year_vis"
-BIBE_vis$Park = "BIBE"
-
-JOTR_vis <- read_csv('../data/visitation/JOTR.csv')
-names(JOTR_vis)[14] <- "Year_vis"
-JOTR_vis$Park = "JOTR"
-
-
-
-```
-
-```{r}
-
-full <- rbind(ACAD_vis, BIBE_vis, JOTR_vis)
-ggplot(ACAD_vis, aes(x = Year, y = Year_vis)) +
-  geom_line() +
-  labs(
-    title = "ACAD yearly"
-  )
-
-ggplot(BIBE_vis, aes(x = Year, y = Year_vis)) +
-  geom_line() +
-  labs(
-    title = "BIBE yearly"
-  )
-
-ggplot(JOTR_vis, aes(x = Year, y = Year_vis)) +
-  geom_line() +
-  labs(
-    title = "JOTR yearly"
-  )
 ggplot(full, aes(x=Year, y=Year_vis, color = Park)) +
   geom_line()
 
 full$log_tot <- log(full$Year_vis)  
 
+full[full$Park == "JOTR"]
+subset(full, Park == "JOTR")
 ```
 
 ```{r}
-spend <- read_csv("../data/parks_spending.csv")
-spend
+
 total <- right_join(full, spend, by = c("Year", "Park"))
 
 total
+
+
 ```
 
 
