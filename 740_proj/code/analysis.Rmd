@@ -6,5 +6,29 @@ output: pdf_document
 ---
 
 ```{r}
+rm(list=ls())
+library(pacman)
+p_load(tidyverse, dplyr, modelsummary, gt)
+```
+```{r}
+total <- read_csv('../data/total.csv')
+total
+```
+
+```{r}
+total_sum <- total[, c("Year_vis", "tot_spend_adj", "jobs", "labor_inc_adj", "val_add_adj", "econ_output_adj")]
+
+datasummary(
+  (`Annual Visitation` = Year_vis) + 
+    (`Total Spending` = tot_spend_adj) + 
+    (`Jobs` = jobs) + 
+    (`Labor Income` = labor_inc_adj) + 
+    (`Value Added` = val_add_adj) +
+    (`Economic Output` = econ_output_adj) ~
+    N + Mean + SD + Min + Median + Max,
+  data = total_sum,
+  fmt = 2,
+  notes = "Note: All dollar values are reported in thousands of 2024 dollars ($000s) and have been adjusted for inflation using the annual-average CPI-U."
+)
 
 ```
