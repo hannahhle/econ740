@@ -56,6 +56,7 @@ results <- lapply(
   }
 )
 ```
+
 ```{r}
 month_cols <- c(toupper(month.abb), "Year_vis")
 
@@ -84,10 +85,12 @@ park_vis <- lapply(park_code, function(park) {
   data
 })
 
-full <- dplyr::bind_rows(park_vis)
+full <- bind_rows(park_vis)
 write.csv(full, "../data/full_vis.csv", row.names = FALSE)
 
 full
+
+length(unique(full$Park))
 ```
 
 ```{r}
@@ -96,7 +99,9 @@ ggplot(full, aes(x=Year, y=Year_vis, color = Park)) +
 
 full$log_tot <- log(full$Year_vis)  
 
-full[full$Park == "JOTR"]
+full
+unique(full$Park)
+
 subset(full, Park == "JOTR")
 ```
 
