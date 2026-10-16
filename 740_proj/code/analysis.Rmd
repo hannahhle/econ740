@@ -10,25 +10,66 @@ rm(list=ls())
 library(pacman)
 p_load(tidyverse, dplyr, modelsummary, gt)
 ```
+
 ```{r}
 total <- read_csv('../data/total.csv')
 total
 ```
 
 ```{r}
-total_sum <- total[, c("Year_vis", "tot_spend_adj", "jobs", "labor_inc_adj", "val_add_adj", "econ_output_adj")]
 
-datasummary(
-  (`Annual Visitation` = Year_vis) + 
-    (`Total Spending` = tot_spend_adj) + 
-    (`Jobs` = jobs) + 
-    (`Labor Income` = labor_inc_adj) + 
-    (`Value Added` = val_add_adj) +
-    (`Economic Output` = econ_output_adj) ~
+
+total_sum <- total %>%
+  transmute(
+    `Annual Visitation` = Year_vis,
+    `Total Spending` = tot_spend_adj,
+    `Jobs` = jobs,
+    `Labor Income` = labor_inc_adj,
+    `Value Added` = val_add_adj,
+    `Economic Output` = econ_output_adj
+  )
+
+table_gt <- datasummary(
+  `Annual Visitation` +
+    `Total Spending` +
+    `Jobs` +
+    `Labor Income` +
+    `Value Added` +
+    `Economic Output` ~
     N + Mean + SD + Min + Median + Max,
   data = total_sum,
   fmt = 2,
-  notes = "Note: All dollar values are reported in thousands of 2024 dollars ($000s) and have been adjusted for inflation using the annual-average CPI-U."
+  notes = "Note: All dollar values are reported in thousands of 2024 dollars ($000s) and have been adjusted for inflation using the annual-average CPI-U.",
+  output = "gt"
 )
+
+```
+
+
+```{r}
+png_url <- "https://i.pinimg.com/736x/98/96/64/98966408bc79f612faf1edb2174a4afd.jpg"
+
+table_gt <- table_gt %>%
+  opt_css(
+    css = paste0(
+      "
+      table.gt_table {
+        background-image: url('", png_url, "');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      table.gt_table th,
+      table.gt_table td,
+      table.gt_table .gt_heading,
+      table.gt_table .gt_sourcenote {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+      }
+      "
+    )
+  )
+
+table_gt
 
 ```
