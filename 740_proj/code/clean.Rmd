@@ -90,27 +90,17 @@ write.csv(full, "../data/full_vis.csv", row.names = FALSE)
 
 full
 
-length(unique(full$Park))
+#length(unique(full$Park))
 ```
 
 ```{r}
-ggplot(full, aes(x=Year, y=Year_vis, color = Park)) +
-  geom_line()
-
 full$log_tot <- log(full$Year_vis)  
-
-full
-unique(full$Park)
-
-subset(full, Park == "JOTR")
 ```
 
 ```{r}
 
 total <- right_join(full, spend, by = c("Year", "Park"))
-
-total
-
+write.csv(total, "../data/total.csv", row.names = FALSE)
 
 ```
 
