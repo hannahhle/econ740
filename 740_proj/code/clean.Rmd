@@ -12,9 +12,10 @@ p_load(tidyverse, dplyr, chromote)
 
 ```{r}
 # parks stewardship data
-parks <- read_csv('../data/parks_name.csv', col_select = 1:5)
+parks <- read_csv('../data/parks_name.csv', col_select = 1:4)
 # parks spending data
 spend <- read_csv("../data/parks_spending.csv")
+
 ```
 
 ```{r}
@@ -95,13 +96,16 @@ full
 
 ```{r}
 full$log_tot <- log(full$Year_vis)  
+full
 ```
 
 ```{r}
 
-total <- right_join(full, spend, by = c("Year", "Park"))
+temp <- right_join(full, spend, by = c("Year", "Park"))
+total <- right_join(temp, parks, by = "Park")
 write.csv(total, "../data/total.csv", row.names = FALSE)
 
+total
 ```
 
 
