@@ -73,3 +73,34 @@ table_gt <- table_gt %>%
 table_gt
 
 ```
+```{r}
+total %>%
+  filter(Park == "ACAD") %>%
+  ggplot(aes(x=Year, y=tot_spend)) +
+  geom_line() +
+  geom_point()
+
+total %>%
+  filter(Park == "ACAD") %>%
+  ggplot(aes(x=Year, y=Year_vis)) +
+  geom_line() +
+  geom_point()
+```
+
+
+```{r}
+## CREATING TREATMENT TIME
+park_code <- unique(na.omit(total$Park))
+
+total <- total %>%
+  mutate(treat = ifelse(CoStew == 1 & !is.na(start_year) & Year >= start_year, 1, 0))
+
+
+```
+
+```{r}
+total$did <- total$Year * total$treat
+
+didreg = lm(Year_vis ~ treat + Year + did, data = total)
+summary(didreg)
+```
