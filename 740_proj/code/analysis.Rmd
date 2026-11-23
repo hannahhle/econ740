@@ -90,12 +90,18 @@ total %>%
 
 ```{r}
 ## CREATING TREATMENT TIME
-park_code <- unique(na.omit(total$Park))
-
-total <- total %>%
-  mutate(treat = ifelse(CoStew == 1 & !is.na(start_year) & Year >= start_year, 1, 0))
-
-
+total_annual <- total[, -c(2:13)] # annual data only
+#write.csv(total_annual, "../data/total_yr.csv", row.names = FALSE)
+ 
+did_data <- total_annual %>%
+  filter(is.na(start_year) | start_year >= 2012) %>% #removing parks that were treated before 2012 
+  mutate(
+    cohort = if_else(
+      !is.na(start_year) & start_year <= max(Year),
+      as.integer(start_year),
+      0L
+    )
+  )
 ```
 
 ```{r}
