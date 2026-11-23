@@ -8,7 +8,7 @@ output: pdf_document
 ```{r}
 rm(list=ls())
 library(pacman)
-p_load(tidyverse, dplyr, modelsummary, gt)
+p_load(tidyverse, dplyr, modelsummary, gt, fixest)
 ```
 
 ```{r}
@@ -73,6 +73,7 @@ table_gt <- table_gt %>%
 table_gt
 
 ```
+
 ```{r}
 total %>%
   filter(Park == "ACAD") %>%
@@ -90,6 +91,7 @@ total %>%
 
 ```{r}
 ## CREATING TREATMENT TIME
+
 total_annual <- total[, -c(2:13)] # annual data only
 #write.csv(total_annual, "../data/total_yr.csv", row.names = FALSE)
  
@@ -99,14 +101,123 @@ did_data <- total_annual %>%
     cohort = if_else(
       !is.na(start_year) & start_year <= max(Year),
       as.integer(start_year),
-      0L
-    )
+      Inf
+      ),
+      
+    treated = as.integer(
+      is.finite(cohort) & Year >= cohort
+      ),
+    
+    log_vis = log(Year_vis),
+    Year_vis = na_if(Year_vis, 0),
+    log_spend = log(tot_spend_adj),
+    log_labor_inc = log(labor_inc_adj),
+    log_val = log(val_add_adj),
+    log_econ = log(econ_output_adj)
+
   )
+
+
 ```
 
 ```{r}
-total$did <- total$Year * total$treat
+#SUNAB LOG VISITATION
 
-didreg = lm(Year_vis ~ treat + Year + did, data = total)
-summary(didreg)
+m1 <- feols(
+  log_vis ~ sunab(cohort, Year, ref.p = -1) |
+    Park + Year,
+  data = did_data,
+  cluster = ~Park
+)
+
+summary(m1)
+iplot(m1)
+
+# SUNAB TOT SPEND
+m2 <- feols(
+  log_spend ~ sunab(cohort, Year, ref.p = -1) |
+    Park + Year,
+  data = did_data,
+  cluster = ~Park
+)
+
+summary(m2)
+iplot(m2)
+
+# SUNAB TOT SPEND
+m3 <- feols(
+  log_spend ~ sunab(cohort, Year, ref.p = -1) |
+    Park + Year,
+  data = did_data,
+  cluster = ~Park
+)
+
+summary(m3)
+iplot(m3)
+```
+
+```{r}
+
+vars = c("log_vis", "log_spend", "log_labor_inc", "log_val", "log_econ")
+
+models <- setNames(
+  lapply(vars, function(outcome) {
+
+    formula <- as.formula(
+      paste0(
+        outcome,
+        " ~ sunab(cohort, Year, ref.p = -1) | Park + Year"
+      )
+    )
+
+    feols(
+      formula,
+      data = did_data,
+      cluster = ~Park
+    )
+  }),
+  vars
+)
+
+etable(
+  models,
+  agg = "period"
+)
+
+iplot(
+  models,
+  xlab = "Years relative to adoption",
+  ylab = "Estimated effect",
+  sep = 0.5
+)
+```
+
+```{r}
+model_no2020 <- feols(
+  log_vis ~ sunab(cohort, Year, ref.p = -1) |
+    Park + Year,
+  data = did_data %>%
+    filter(Year != 2020),
+  cluster = ~Park
+)
+
+iplot(model_no2020)
+
+```
+
+```{r}
+
+library(dplyr)
+
+did_data %>%
+  distinct(Park, cohort) %>%
+  mutate(
+    cohort_group = if_else(
+      is.infinite(cohort),
+      "Never treated",
+      as.character(cohort)
+    )
+  ) %>%
+  count(cohort_group, name = "number_of_parks")
+
 ```
