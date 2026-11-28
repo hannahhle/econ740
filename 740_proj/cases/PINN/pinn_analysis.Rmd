@@ -1,0 +1,75 @@
+case study for pinnacles national park (PINN)
+
+```{r}
+library(pacman)
+p_load(tidyverse, dplyr, modelsummary, gt, fixest)
+
+df <- read_csv('../../data/total.csv')
+
+# USING MONTHLY VISITATION DATA
+pinn_month_df <- read_csv('../../data/visitation/PINN.csv')
+```
+
+
+```{r}
+ggplot(pinn_month_df,
+       aes(x = Year, y = log(Year_vis))) +
+  geom_line() +
+  geom_point() +
+  geom_vline(
+    xintercept = 2013,
+    linetype = "dashed",
+    color = "red"
+  ) +
+  labs(
+    title = "Pinnacles National Park Visitation",
+    subtitle = "Dashed line indicates the 2013 Tribal–NPS MOU",
+    x = "Year",
+    y = "Log annual visitation"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+
+library(tidyr)
+
+months <- c(
+  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+)
+
+pinn_month_long <- pinn_month_df %>%
+  pivot_longer(
+    cols = all_of(months),
+    names_to = "month",
+    values_to = "visitation"
+  ) %>%
+  mutate(
+    month = factor(month, levels = months),
+    month_number = match(month, months),
+    date = as.Date(
+      paste(Year, month_number, "01", sep = "-")
+    )
+  )
+
+
+```
+
+```{r}
+ggplot(pinn_month_long,
+       aes(x = date, y = log(visitation))) +
+  geom_line() +
+  geom_vline(
+    xintercept = as.Date("2013-04-27"),
+    linetype = "dashed",
+    color = "red"
+  ) +
+  labs(
+    title = "Monthly Visitation at Pinnacles",
+    x = "Month",
+    y = "Monthly visitation"
+  ) +
+  theme_minimal()
+```

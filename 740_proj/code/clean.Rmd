@@ -21,7 +21,7 @@ spend <- read_csv("../data/parks_spending.csv")
 ```{r}
 # SCRAPES IRMA FOR VISITATION DATA OVER EACH PARK. 
 # do not need to run every time
-# last updated october 10, 2026
+# last updated nov 27, 2026
 
 source("scrape.R")
 
