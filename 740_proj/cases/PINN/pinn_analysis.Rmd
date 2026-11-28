@@ -52,14 +52,15 @@ pinn_month_long <- pinn_month_df %>%
     date = as.Date(
       paste(Year, month_number, "01", sep = "-")
     )
-  )
+  ) %>%
+  drop_na(visitation)
 
 
 ```
 
 ```{r}
 ggplot(pinn_month_long,
-       aes(x = date, y = log(visitation))) +
+       aes(x = date, y = visitation)) +
   geom_line() +
   geom_vline(
     xintercept = as.Date("2013-04-27"),
@@ -70,6 +71,25 @@ ggplot(pinn_month_long,
     title = "Monthly Visitation at Pinnacles",
     x = "Month",
     y = "Monthly visitation"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(
+  pinn_month_long,
+  aes(x = date, y = visitation)
+) +
+  geom_line(alpha = 0.5) +
+  geom_smooth(
+    method = "loess",
+    se = FALSE,
+    color = "darkblue"
+  ) +
+  geom_vline(
+    xintercept = as.Date("2013-04-27"),
+    linetype = "dashed",
+    color = "red"
   ) +
   theme_minimal()
 ```
